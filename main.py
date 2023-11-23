@@ -3,7 +3,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 movies = pd.read_csv('tmdb_movies_data.csv')
-#movies_unpopular = movies[movies['popularity'] <= movies.loc[:, 'popularity'].mean()]
+movies_unpopular = movies[movies['popularity'] <= movies.loc[:, 'popularity'].mean()]
 
 values_combined = movies['genres'].str.replace('|', ' ') + " " + movies['keywords'].str.replace('|', ' ')
 tfidf = TfidfVectorizer()
@@ -13,6 +13,7 @@ similarity_df = pd.DataFrame(cosine_similarity, index=movies['original_title'], 
 
 movie = input('Enter a movie you like: ')
 movie_index = similarity_df.index.get_loc(movie)
-top_10 = similarity_df.iloc[movie_index].sort_values(ascending=False)[1:11]
+top_10 = similarity_df.iloc[movie_index]
+top_10 = top_10[~top_10.index.isin(movies_unpopular['original_title'].tolist())].sort_values(ascending=False)[1:11]
 print(f'Top 10 similar movies to {movie}:')
 print(top_10)
